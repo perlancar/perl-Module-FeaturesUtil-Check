@@ -84,7 +84,7 @@ sub check_features_decl {
         my $mod = "Module::Features::$fsetname";
         (my $modpm = "$mod.pm") =~ s!::!/!g;
         eval { require $modpm; 1 }
-            or return [500, "Cannot get specification for feature set '$fsetname': Cannot load $mod: $@"];
+            or return [500, "Cannot get specification for feature set '$fsetname': $@"];
         my $spec = \%{"$mod\::FEATURES_DEF"};
         my $res = check_feature_set_spec($spec);
         $res->[0] == 200
