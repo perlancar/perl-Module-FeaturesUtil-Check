@@ -59,7 +59,7 @@ $SPEC{check_features_decl} = {
     v => 1.1,
     summary => 'Check features declaration',
     args => {
-        features => {
+        features_decl => {
             schema => 'hash*',
             req => 1,
             pos => 0,
@@ -71,12 +71,15 @@ sub check_features_decl {
     require Data::Sah;
     require Hash::DefHash;
 
-    my $features = shift;
+    my $features_decl = shift;
 
-    ref $features eq 'HASH'
-        or return [500, "Features is not a hash"];
+    ref $features_decl eq 'HASH'
+        or return [500, "Features declaration is not a hash"];
 
-    for my $fsetname (sort keys %$features) {
+    ref $features_decl->{features} eq 'HASH'
+        or return [500, "Features declaration does not have 'features' property or it is not a hash"];
+
+    for my $fsetname (sort keys %{ $features_decl->{features} }) {
         $fsetname =~ /\A\w+(::\w+)*\z/
             or return [500, "Feature set name '$fsetname' is invalid, please use regular Perl namespace e.g. Foo::Bar"];
 
@@ -90,8 +93,8 @@ sub check_features_decl {
         $res->[0] == 200
             or return [500, "Specification for feature set '$fsetname' is invalid: $res->[1]"];
 
-        my $set_features = $features->{$fsetname};
-        ref $features eq 'HASH'
+        my $set_features = $features_decl->{features}{$fsetname};
+        ref $set_features eq 'HASH'
             or return [500, "Features for set '$fsetname' is not a hash"];
 
         # check required features
