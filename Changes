@@ -1,3 +1,10 @@
+0.003   2021-02-23  Released-By: PERLANCAR; Urgency: low
+
+	- No functional changes.
+
+	- [dist] Remove inappropriate tags (copy mistake).
+
+
 0.002   2021-02-23  Released-By: PERLANCAR; Urgency: medium
 
 	- Adjust to Module::Features 0.1.3.
