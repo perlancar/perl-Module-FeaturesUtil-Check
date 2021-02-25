@@ -52,6 +52,9 @@ sub check_feature_set_spec {
                 or return [500, "Schema for feature '$fname' is invalid: $@"];
         }
     } # for fname
+
+    # XXX check known properties
+
     [200];
 }
 
@@ -79,6 +82,9 @@ sub check_features_decl {
     ref $features_decl->{features} eq 'HASH'
         or return [500, "Features declaration does not have 'features' property or it is not a hash"];
 
+    my $set_v = $features_decl->{set_v} // {};
+    ref $set_v eq 'HASH' or return [500, "set_v must be a hash"];
+
     for my $fsetname (sort keys %{ $features_decl->{features} }) {
         $fsetname =~ /\A\w+(::\w+)*\z/
             or return [500, "Feature set name '$fsetname' is invalid, please use regular Perl namespace e.g. Foo::Bar"];
@@ -88,8 +94,8 @@ sub check_features_decl {
         (my $modpm = "$mod.pm") =~ s!::!/!g;
         eval { require $modpm; 1 }
             or return [500, "Cannot get specification for feature set '$fsetname': $@"];
-        my $spec = \%{"$mod\::FEATURES_DEF"};
-        my $res = check_feature_set_spec($spec);
+        my $feature_set_spec = \%{"$mod\::FEATURES_DEF"};
+        my $res = check_feature_set_spec($feature_set_spec);
         $res->[0] == 200
             or return [500, "Specification for feature set '$fsetname' is invalid: $res->[1]"];
 
@@ -97,16 +103,24 @@ sub check_features_decl {
         ref $set_features eq 'HASH'
             or return [500, "Features for set '$fsetname' is not a hash"];
 
+        # check versions
+        {
+            my $set_v_in_spec = $feature_set_spec->{v} // 1;
+            my $set_v_in_decl = $set_v->{$fsetname} // 1;
+            $set_v_in_decl == $set_v_in_spec
+                or return [500, "Features declaration uses version $set_v_in_decl of feature set, while feature set specification is at version $set_v_in_spec"];
+        }
+
         # check required features
-        for my $fname (sort keys %{ $spec->{features} }) {
-            my $fspec = $spec->{features}{$fname};
+        for my $fname (sort keys %{ $feature_set_spec->{features} }) {
+            my $fspec = $feature_set_spec->{features}{$fname};
             next unless $fspec->{req};
             exists $set_features->{$fname}
                 or return [500, "Missing declaration of required feature '$fname' in set '$fsetname'"];
         }
 
         for my $fname (sort keys %$set_features) {
-            my $fspec = $spec->{features}{$fname}
+            my $fspec = $feature_set_spec->{features}{$fname}
                 or return [500, "Feature '$fname' is unknown in set '$fsetname'"];
 
             my $fschema = $fspec->{schema};
@@ -120,6 +134,9 @@ sub check_features_decl {
             }
         } # for fname
     } # for fsetname
+
+    # XXX check known properties
+
     [200];
 }
 
