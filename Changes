@@ -1,3 +1,9 @@
+0.004   2021-02-25  Released-By: PERLANCAR; Urgency: medium
+
+	- Check version of feature set specification version vs features
+	  declaration's set_v.
+
+
 0.003   2021-02-23  Released-By: PERLANCAR; Urgency: low
 
 	- No functional changes.
