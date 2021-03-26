@@ -34,6 +34,7 @@ sub check_feature_set_spec {
     require Hash::DefHash;
 
     my $spec = shift;
+    my @warnings;
 
     my $dh;
     eval { $dh = Hash::DefHash->new($spec) }
@@ -42,8 +43,10 @@ sub check_feature_set_spec {
         or return [500, "Features properties is not defined or not a hash"];
 
     for my $fname (sort keys %{ $spec->{features} }) {
+        length $fname
+            or return [500, "Feature name cannot be empty"];
         $fname =~ /\A\w+\z/
-            or return [500, "Feature name '$fname' is invalid, please only use /\\w+/"];
+            or push @warnings, "Feature name '$fname' does not match preferred pattern /\\w+/";
         my $fspec = $spec->{features}{$fname};
         eval { $dh = Hash::DefHash->new($fspec) }
             or return [500, "Spec for feature '$fname' is not a valid defhash: $@"];
@@ -55,7 +58,7 @@ sub check_feature_set_spec {
 
     # XXX check known properties
 
-    [200];
+    [200, "OK", undef, {"func.warnings"=>\@warnings}];
 }
 
 $SPEC{check_features_decl} = {
