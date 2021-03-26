@@ -1,3 +1,9 @@
+0.005   2021-03-26  Released-By: PERLANCAR; Urgency: medium
+
+	- Degrade the severity of check to warning: feature name must be
+	  /^\w+$/.
+
+
 0.004   2021-02-25  Released-By: PERLANCAR; Urgency: medium
 
 	- Check version of feature set specification version vs features
