@@ -144,9 +144,11 @@ sub check_features_decl {
 }
 
 1;
-# ABSTRACT: Check feature set specification and feature declaration
+# ABSTRACT: Check feature set specification and feature declaration (following Module::Features specification)
 
 =head1 DESCRIPTION
+
+See L<Module::Features/"GLOSSARY"> for terminology.
 
 
 =head1 SEE ALSO
